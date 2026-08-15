@@ -1,6 +1,9 @@
 document.addEventListener("DOMContentLoaded", function () {
 
-    // Mobile Menu
+    /* =========================
+       MOBILE MENU
+    ========================= */
+
     const navToggle = document.getElementById("navToggle");
     const navLinks = document.getElementById("navLinks");
 
@@ -8,17 +11,29 @@ document.addEventListener("DOMContentLoaded", function () {
 
         navToggle.addEventListener("click", function () {
             navLinks.classList.toggle("active");
+
+            if (navLinks.classList.contains("active")) {
+                navToggle.setAttribute("aria-label", "Close Menu");
+            } else {
+                navToggle.setAttribute("aria-label", "Open Menu");
+            }
         });
 
-        navLinks.querySelectorAll("a").forEach(function (link) {
+        const links = navLinks.querySelectorAll("a");
+
+        links.forEach(function (link) {
             link.addEventListener("click", function () {
                 navLinks.classList.remove("active");
+                navToggle.setAttribute("aria-label", "Open Menu");
             });
         });
     }
 
 
-    // Booking Form → WhatsApp
+    /* =========================
+       BOOKING FORM → WHATSAPP
+    ========================= */
+
     const bookingForm = document.getElementById("bookingForm");
 
     if (bookingForm) {
@@ -33,51 +48,75 @@ document.addEventListener("DOMContentLoaded", function () {
             const date = document.getElementById("date").value;
             const time = document.getElementById("time").value;
 
+
+            /* Validate */
+
             if (!name || !phone || !service || !date || !time) {
-                alert("Please fill all details.");
+                alert("Please fill all the details.");
                 return;
             }
 
-            const cleanPhone = phone.replace(/\D/g, "");
 
-            if (cleanPhone.length !== 10) {
+            /* Mobile number validation */
+
+            if (!/^[0-9]{10}$/.test(phone)) {
                 alert("Please enter a valid 10 digit mobile number.");
                 return;
             }
 
+
+            /* Date formatting */
+
+            const dateObject = new Date(date);
+
+            const formattedDate = dateObject.toLocaleDateString("en-IN", {
+                day: "2-digit",
+                month: "2-digit",
+                year: "numeric"
+            });
+
+
+            /* =========================
+               WHATSAPP MESSAGE
+            ========================= */
+
             const message =
-                "Hello Amira Wellness Spa,%0A%0A" +
-                "I would like to book an appointment.%0A%0A" +
-                "Name: " + encodeURIComponent(name) + "%0A" +
-                "Mobile: " + encodeURIComponent(phone) + "%0A" +
-                "Service: " + encodeURIComponent(service) + "%0A" +
-                "Preferred Date: " + encodeURIComponent(date) + "%0A" +
-                "Preferred Time: " + encodeURIComponent(time) + "%0A%0A" +
-                "Customer Source: WEBSITE%0A%0A" +
-                "I found Amira Wellness Spa through the website.%0A%0A" +
-                "Please confirm my appointment.";
+`Hello Amira Wellness Spa 👋
+
+I want to book a spa appointment.
+
+👤 Name: ${name}
+📱 Customer Mobile: ${phone}
+💆 Service: ${service}
+📅 Preferred Date: ${formattedDate}
+⏰ Preferred Time: ${time}
+
+📍 Customer Source: Website / Google
+
+I found Amira Wellness Spa through your website.
+
+Please confirm my appointment. Thank you!`;
+
+
+            /* WhatsApp Business Number */
+
+            const whatsappNumber = "919315896303";
+
+
+            /* Encode message */
 
             const whatsappURL =
-                "https://wa.me/919315896303?text=" + message;
+                "https://wa.me/" +
+                whatsappNumber +
+                "?text=" +
+                encodeURIComponent(message);
+
+
+            /* Open WhatsApp */
 
             window.location.href = whatsappURL;
 
         });
-    }
-
-
-    // Prevent selecting past dates
-    const dateInput = document.getElementById("date");
-
-    if (dateInput) {
-
-        const today = new Date();
-
-        const year = today.getFullYear();
-        const month = String(today.getMonth() + 1).padStart(2, "0");
-        const day = String(today.getDate()).padStart(2, "0");
-
-        dateInput.min = `${year}-${month}-${day}`;
     }
 
 });
